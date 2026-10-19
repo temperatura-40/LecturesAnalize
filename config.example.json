@@ -1,0 +1,17 @@
+{
+  "folders": {
+    "audio": "~/Documents/Lectures",
+    "obsidian": "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian/Конспекты (Auto)"
+  },
+
+  "macwhisper": {
+    "model": "parakeet-pro:nvidia_parakeet-v3",
+    "language": "ru"
+  },
+
+  "llm": {
+    "model": "google/gemma-4-e4b",
+    "max_context": 65536,
+    "temperature": 0.2
+  }
+}
