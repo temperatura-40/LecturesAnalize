@@ -1,0 +1,14 @@
+pyproject.toml
+lectures_notes.egg-info/PKG-INFO
+lectures_notes.egg-info/SOURCES.txt
+lectures_notes.egg-info/dependency_links.txt
+lectures_notes.egg-info/entry_points.txt
+lectures_notes.egg-info/top_level.txt
+src/cli.py
+src/config.py
+src/llm.py
+src/pipeline.py
+src/scanner.py
+src/transcriber.py
+src/transcript.py
+src/util.py

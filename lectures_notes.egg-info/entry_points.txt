@@ -1,0 +1,2 @@
+[console_scripts]
+lectures = src.cli:main
