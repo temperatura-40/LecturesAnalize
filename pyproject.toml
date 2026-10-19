@@ -8,5 +8,8 @@ version = "0.1.0"
 description = "Pipeline for processing lecture audio into Markdown notes"
 requires-python = ">=3.10"
 
+[tool.setuptools]
+packages = ["src"]
+
 [project.scripts]
-lectures = "cli:main"
+lectures = "src.cli:main"
