@@ -27,16 +27,18 @@ def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
         Configuration dictionary.
     """
     if config_path is None:
-        # Check current working directory first
-        p = Path("config.json")
-        if p.is_file():
-            config_path = str(p)
+        # Look for config.json relative to the project root (where src/config.py lives)
+        project_root = Path(__file__).resolve().parent.parent
+        project_config = project_root / "config.json"
+        if project_config.is_file():
+            config_path = str(project_config)
         else:
+            # Fallback: check user home
             home_config = str(Path.home() / ".lecture_notes" / "config.json")
             if Path(home_config).is_file():
                 config_path = home_config
             else:
-                config_path = "config.json"  # Will raise if missing
+                config_path = str(project_config)  # Will raise if missing
 
     with open(config_path, "r", encoding="utf-8") as f:
         cfg = json.load(f)
