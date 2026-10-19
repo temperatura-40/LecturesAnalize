@@ -31,15 +31,17 @@ SUPPORTED_EXTENSIONS: tuple = (
 )
 
 
-def scan_lectures(audio_folder: str) -> Dict[str, Dict[str, object]]:
+def scan_lectures(audio_folder: str, obsidian_folder: str) -> Dict[str, Dict[str, object]]:
     """Scan for lecture audio files and their artifacts.
 
     Walks the audio folder looking for audio files. For each
     audio file found, checks its own directory for existing
-    artifacts (transcript, legacy JSON transcript, note).
+    artifacts (transcript, legacy JSON transcript) and the
+    Obsidian folder for the generated note.
 
     Args:
         audio_folder: Path to folder containing audio files.
+        obsidian_folder: Path to the Obsidian folder with .md notes.
 
     Returns:
         Dictionary keyed by audio filename stem with values:
@@ -48,10 +50,11 @@ def scan_lectures(audio_folder: str) -> Dict[str, Dict[str, object]]:
             "relative_name": str,             // Filename without extension
             "has_transcript": bool,         // .transcript.txt next to audio
             "has_legacy_transcript": bool,  // .transcript.json next to audio
-            "has_md": bool,                   // .md next to audio
+            "has_md": bool,                   // .md in Obsidian folder
         }
     """
     audio_path = Path(audio_folder).expanduser().resolve()
+    obsidian_path = Path(obsidian_folder).expanduser().resolve()
 
     audio_files: Dict[str, Dict[str, object]] = {}
     if not audio_path.is_dir():
@@ -73,7 +76,7 @@ def scan_lectures(audio_folder: str) -> Dict[str, Dict[str, object]]:
                 "has_legacy_transcript": (
                     parent / f"{rel_name}.transcript.json"
                 ).is_file(),
-                "has_md": (parent / f"{rel_name}.md").is_file(),
+                "has_md": (obsidian_path / f"{rel_name}.md").is_file(),
             }
 
     return audio_files

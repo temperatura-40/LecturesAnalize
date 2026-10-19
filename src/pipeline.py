@@ -36,7 +36,7 @@ from src.transcript import (
     migrate_legacy_json,
     transcript_path,
 )
-from src.util import atomic_copy, atomic_write_text
+from src.util import atomic_write_text
 
 # Prompt templates live in <project root>/prompts
 PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
@@ -96,7 +96,7 @@ class Pipeline:
         obsidian_path = Path(obsidian_folder).expanduser().resolve()
         obsidian_path.mkdir(parents=True, exist_ok=True)
 
-        return scan_lectures(str(audio_folder))
+        return scan_lectures(str(audio_folder), str(obsidian_folder))
 
     # ------------------------------------------------------------------
     # Commands
@@ -232,11 +232,9 @@ class Pipeline:
 
         print(f"  Transcript: {len(transcript_text):,} chars")
 
-        # 2. Markdown already exists -> nothing to generate,
-        #    just make sure it is exported to Obsidian.
+        # 2. Markdown already exists -> nothing to generate.
         if info.get("has_md"):
             print("  Markdown: already exists, skipping LLM")
-            self._export_to_obsidian(lecture_name, base_dir)
             print(f"  [{lecture_name}] Done (skipped)\n")
             return True
 
@@ -288,12 +286,12 @@ class Pipeline:
             print(f"  Skipping {lecture_name} — no file written.")
             return False
 
-        # 6. Save atomically and export to Obsidian
-        md_path = Path(base_dir) / f"{lecture_name}.md"
+        # 6. Save directly to Obsidian
+        obsidian_path = Path(self.folders["obsidian"]).expanduser().resolve()
+        obsidian_path.mkdir(parents=True, exist_ok=True)
+        md_path = obsidian_path / f"{lecture_name}.md"
         atomic_write_text(str(md_path), markdown)
         print(f"  -> Markdown saved to {md_path}")
-
-        self._export_to_obsidian(lecture_name, base_dir)
 
         print(f"  [{lecture_name}] Done!\n")
         return True
@@ -381,20 +379,4 @@ class Pipeline:
                 "no Markdown structure (no headings or lists found)"
             )
 
-    def _export_to_obsidian(self, lecture_name: str, base_dir: str) -> None:
-        """Copy the generated .md file to the Obsidian folder."""
-        md_path = Path(base_dir) / f"{lecture_name}.md"
-        if not md_path.is_file():
-            print(f"  WARNING: {md_path} not found, cannot export")
-            return
 
-        obsidian_folder = self.folders.get("obsidian", "~/Obsidian/Lectures")
-        obsidian_path = Path(obsidian_folder).expanduser().resolve()
-        obsidian_path.mkdir(parents=True, exist_ok=True)
-
-        dest_path = obsidian_path / md_path.name
-        try:
-            atomic_copy(str(md_path), str(dest_path))
-            print(f"  -> Copied to Obsidian: {dest_path}")
-        except Exception as e:  # noqa: BLE001 - export is best-effort
-            print(f"  -> Error copying to Obsidian: {e}")
